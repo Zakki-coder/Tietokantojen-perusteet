@@ -45,3 +45,9 @@ def users_in_city(city):
 	city_id = db.execute("SELECT id FROM Cities WHERE Cities.name=?", [city]).fetchone()
 	number_of_users = db.execute("SELECT COUNT(DISTINCT user_id) FROM Bikes JOIN Trips ON Bikes.id = Trips.bike_id WHERE Bikes.city_id =?", [city_id[0]]).fetchone()
 	return number_of_users[0]
+
+# Function to tell the number of trips for each day on a given city
+def trips_on_each_day(city):
+	city_id = db.execute("SELECT id FROM Cities WHERE name=?", [city]).fetchone()
+	trips = db.execute("SELECT T.day, (SELECT COUNT(*) FROM Trips JOIN Bikes ON Bikes.id = Trips.bike_id WHERE day = T.day AND Bikes.city_id=?) FROM Trips T JOIN Bikes ON Bikes.id = T.bike_id WHERE Bikes.city_id=? GROUP BY T.day ORDER BY T.day", (city_id[0], city_id[0])).fetchall()
+	return trips
