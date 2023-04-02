@@ -51,3 +51,9 @@ def trips_on_each_day(city):
 	city_id = db.execute("SELECT id FROM Cities WHERE name=?", [city]).fetchone()
 	trips = db.execute("SELECT T.day, (SELECT COUNT(*) FROM Trips JOIN Bikes ON Bikes.id = Trips.bike_id WHERE day = T.day AND Bikes.city_id=?) FROM Trips T JOIN Bikes ON Bikes.id = T.bike_id WHERE Bikes.city_id=? GROUP BY T.day ORDER BY T.day", (city_id[0], city_id[0])).fetchall()
 	return trips
+
+# Function to tell the favorite departure station of given city and the number of trips
+def most_popular_start(city):
+	city_id = db.execute("SELECT id FROM Cities WHERE name=?", [city]).fetchone()
+	favorite = db.execute("SELECT (SELECT name FROM Stops WHERE id = start), MAX(trips) FROM (SELECT T.from_id start, COUNT(*) trips FROM Bikes JOIN Trips T ON Bikes.id = T.bike_id WHERE Bikes.city_id=? GROUP BY T.from_id)", [city_id[0]]).fetchone()
+	return favorite
